@@ -4,7 +4,7 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, Legend
 } from 'recharts';
 
-const API = 'https://web-production-81316.up.railway.app';
+const API = 'web-production-3372a.up.railway.app';
 
 const DIST_NORMAL     = 300;
 const DIST_PRECAUCION = 200;

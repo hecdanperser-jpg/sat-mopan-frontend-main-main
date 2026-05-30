@@ -4,7 +4,7 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, Legend
 } from 'recharts';
 
-const API = 'web-production-3372a.up.railway.app';
+const API = 'https://web-production-3372a.up.railway.app';
 
 const DIST_NORMAL     = 300;
 const DIST_PRECAUCION = 200;
@@ -59,7 +59,6 @@ function KpiCard({ accent, label, value, valueSub, color, sub }) {
   );
 }
 
-// ── Panel ML Random Forest ─────────────────────────────────────
 function PanelML() {
   const [pred, setPred] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -186,7 +185,6 @@ function PanelML() {
   );
 }
 
-// ── Panel Predicción + Proyección ─────────────────────────────
 function PanelPrediccionProyeccion() {
   const [datos, setDatos] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -224,7 +222,6 @@ function PanelPrediccionProyeccion() {
   const lstmEta = lstm.disponible ? lstm.minutos_a_precaucion : null;
   const etaColor = lstmEta !== null && lstmEta < 60 ? '#ef4444' : lstmEta !== null && lstmEta < 240 ? '#f59e0b' : '#3b82f6';
 
-  // Construir datos de la gráfica combinada
   const histPuntos = hist.map((m, i) => {
     const diffMin = Math.round((new Date(m.timestamp) - new Date(hist[hist.length - 1].timestamp)) / 60000);
     return { label: diffMin === 0 ? 'ahora' : diffMin + 'm', real: m.nivel_cm, proyeccion: null, lstmPunto: null };
@@ -239,7 +236,6 @@ function PanelPrediccionProyeccion() {
 
   const chartData = [...histPuntos, ...proyPuntos];
 
-  // Interpretación combinada
   let interp = '';
   const prec = proy.cruces_umbrales?.precaucion;
   if (lstmEta !== null && prec) {
@@ -253,7 +249,6 @@ function PanelPrediccionProyeccion() {
 
   return (
     <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 10, padding: 16 }}>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.07em' }}>
           Predicción LSTM + Proyección futura
@@ -264,7 +259,6 @@ function PanelPrediccionProyeccion() {
         </div>
       </div>
 
-      {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
         <div style={{ background: '#0f172a', borderRadius: 8, padding: 12, textAlign: 'center' }}>
           <div style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', marginBottom: 6 }}>LSTM — tiempo a precaución</div>
@@ -285,7 +279,6 @@ function PanelPrediccionProyeccion() {
         </div>
       </div>
 
-      {/* Leyenda */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 10, flexWrap: 'wrap' }}>
         {[
           { color: '#60a5fa', dash: false, label: 'Historial real' },
@@ -304,7 +297,6 @@ function PanelPrediccionProyeccion() {
         ))}
       </div>
 
-      {/* Gráfica */}
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -320,12 +312,10 @@ function PanelPrediccionProyeccion() {
         </LineChart>
       </ResponsiveContainer>
 
-      {/* Interpretación */}
       <div style={{ background: '#0f172a', borderLeft: '3px solid #3b82f6', borderRadius: '0 8px 8px 0', padding: '12px 14px', fontSize: 12, color: '#94a3b8', lineHeight: 1.6, marginTop: 12, marginBottom: 14 }}>
         {interp}
       </div>
 
-      {/* Explicación diferencia */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <div style={{ background: '#0f172a', borderRadius: 8, padding: 12, borderLeft: '3px solid #3b82f6' }}>
           <div style={{ fontSize: 10, fontWeight: 600, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Proyección (línea punteada)</div>
@@ -340,7 +330,6 @@ function PanelPrediccionProyeccion() {
   );
 }
 
-// ── Panel Comparación Histórica ───────────────────────────────
 function PanelHistorico() {
   const [datos, setDatos] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -367,9 +356,6 @@ function PanelHistorico() {
   );
   if (!datos) return null;
 
-  const pct_peor   = Math.min(100, (datos.peor_caso_min / datos.mejor_caso_min) * 100);
-  const pct_prom   = Math.min(100, (datos.min_promedio / datos.mejor_caso_min) * 100);
-
   return (
     <div style={{ background: '#1e293b', border: '1px solid #334155', borderTop: '3px solid #8b5cf6', borderRadius: 10, padding: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -386,7 +372,6 @@ function PanelHistorico() {
         </div>
       </div>
 
-      {/* Métricas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
         {[
           { label: 'Promedio histórico', val: datos.min_promedio, sub: 'minutos', color: '#8b5cf6' },
@@ -402,35 +387,6 @@ function PanelHistorico() {
         ))}
       </div>
 
-      {/* Barra visual de rango */}
-      <div style={{ background: '#0f172a', borderRadius: 8, padding: 14, marginBottom: 14 }}>
-        <div style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 10 }}>
-          Rango histórico de tiempo a precaución
-        </div>
-        <div style={{ position: 'relative', height: 8, background: '#1e293b', borderRadius: 4, marginBottom: 8 }}>
-          {/* Rango completo */}
-          <div style={{ position: 'absolute', left: '0%', width: '100%', height: '100%', background: 'rgba(139,92,246,0.2)', borderRadius: 4 }} />
-          {/* Promedio */}
-          <div style={{
-            position: 'absolute',
-            left: `${Math.min(95, (datos.min_promedio / datos.mejor_caso_min) * 100)}%`,
-            top: -4, width: 2, height: 16, background: '#8b5cf6', borderRadius: 1
-          }} />
-          {/* Peor caso */}
-          <div style={{
-            position: 'absolute',
-            left: `${Math.min(95, (datos.peor_caso_min / datos.mejor_caso_min) * 100)}%`,
-            top: -4, width: 2, height: 16, background: '#ef4444', borderRadius: 1
-          }} />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#475569' }}>
-          <span style={{ color: '#ef4444' }}>Mín: {datos.mejor_caso_min} min</span>
-          <span style={{ color: '#8b5cf6' }}>Promedio: {datos.min_promedio} min</span>
-          <span style={{ color: '#22c55e' }}>Máx: {datos.peor_caso_min} min</span>
-        </div>
-      </div>
-
-      {/* Interpretación */}
       <div style={{ background: '#0f172a', borderLeft: '3px solid #8b5cf6', borderRadius: '0 8px 8px 0', padding: '12px 14px', fontSize: 12, color: '#94a3b8', lineHeight: 1.6, marginBottom: 10 }}>
         {datos.interpretacion}
       </div>
@@ -442,7 +398,6 @@ function PanelHistorico() {
   );
 }
 
-// ── Simulador ─────────────────────────────────────────────────
 function Simulador({ onEnvio }) {
   const [dist, setDist] = useState(250);
   const [voltaje, setVoltaje] = useState(12.65);
@@ -539,7 +494,6 @@ function Simulador({ onEnvio }) {
   );
 }
 
-// ── App principal ─────────────────────────────────────────────
 export default function App() {
   const [actual, setActual] = useState(null);
   const [historial, setHistorial] = useState([]);
@@ -585,7 +539,6 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#111827', color: '#f1f5f9', fontFamily: "'Segoe UI', sans-serif" }}>
-      {/* Header */}
       <div style={{ background: '#0f172a', borderBottom: '1px solid #1e293b', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 32, height: 32, background: '#1d4ed8', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -612,7 +565,6 @@ export default function App() {
           <div style={{ textAlign: 'center', color: '#64748b', padding: '4rem', fontFamily: 'monospace', fontSize: 13 }}>Conectando con el servidor...</div>
         ) : (
           <>
-            {/* Banner */}
             <div style={{ background: est.bg, border: `1px solid ${est.bc}`, borderRadius: 10, padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: est.c }}>Estado del río: {est.l}</span>
               <span style={{ fontSize: 20, fontWeight: 700, color: est.c, fontFamily: 'monospace' }}>
@@ -620,7 +572,6 @@ export default function App() {
               </span>
             </div>
 
-            {/* KPIs */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10 }}>
               <KpiCard accent="#3b82f6" label="Distancia al agua" value={distCm < 900 ? distCm.toFixed(1) + ' cm' : 'Error'} color={est.c} sub="menor distancia = mayor riesgo" />
               <KpiCard accent="#f59e0b" label="Batería" value={voltaje.toFixed(2)} color="#f59e0b" sub={voltaje >= 12 ? 'carga óptima' : 'carga baja'} />
@@ -628,7 +579,6 @@ export default function App() {
               <KpiCard accent="#22c55e" label="Mediciones" value={historial.length} color="#22c55e" sub="en este historial" />
             </div>
 
-            {/* Gráfica + Gauge */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
               <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 10, padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -692,19 +642,11 @@ export default function App() {
               </div>
             </div>
 
-            {/* Panel ML Random Forest */}
             <PanelML />
-
-            {/* Panel Predicción + Proyección LSTM */}
             <PanelPrediccionProyeccion />
-
-            {/* Panel Comparación Histórica */}
             <PanelHistorico />
-
-            {/* Simulador */}
             <Simulador onEnvio={fetchData} />
 
-            {/* Tabla */}
             <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 10, padding: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.07em' }}>Últimas mediciones registradas</span>
@@ -738,7 +680,6 @@ export default function App() {
               </table>
             </div>
 
-            {/* Footer */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid #1e293b' }}>
               <span style={{ fontSize: 10, color: '#475569' }}>Universidad Mariano Gálvez · Héctor Daniel Pérez 5190-15-3835 · SAT Río Mopán</span>
               <button onClick={fetchData} style={{ background: '#1d4ed8', border: 'none', color: '#fff', borderRadius: 6, padding: '6px 14px', fontSize: 11, cursor: 'pointer', fontWeight: 500, fontFamily: 'inherit' }}>Actualizar ↻</button>

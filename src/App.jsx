@@ -636,15 +636,12 @@ function Login({ onLogin }) {
 
 // ── App principal ─────────────────────────────────────────────
 export default function App() {
-  const [token, setToken]   = useState(null);
-  const [actual, setActual] = useState(null);
-
-  // Mostrar login si no hay token
-  if (!token) return <Login onLogin={setToken} />;
+  const [token, setToken]       = useState(null);
+  const [actual, setActual]     = useState(null);
   const [historial, setHistorial] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]   = useState(true);
   const [liveStatus, setLiveStatus] = useState('EN VIVO');
-  const [hora, setHora] = useState('--:--:--');
+  const [hora, setHora]         = useState('--:--:--');
 
   useEffect(() => {
     const t = setInterval(() => setHora(new Date().toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' })), 1000);
@@ -681,6 +678,9 @@ export default function App() {
   }));
 
   const tablaData = historial.filter(m => m.nivel_cm < 900).slice(-8).reverse();
+
+  // Mostrar login si no hay token
+  if (!token) return <Login onLogin={setToken} />;
 
   return (
     <div style={{ minHeight: '100vh', background: '#111827', color: '#f1f5f9', fontFamily: "'Segoe UI', sans-serif" }}>

@@ -59,6 +59,7 @@ function KpiCard({ accent, label, value, valueSub, color, sub }) {
   );
 }
 
+// ── Panel ML Random Forest ─────────────────────────────────────
 function PanelML() {
   const [pred, setPred] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -185,6 +186,7 @@ function PanelML() {
   );
 }
 
+// ── Panel Predicción + Proyección ─────────────────────────────
 function PanelPrediccionProyeccion() {
   const [datos, setDatos] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -222,6 +224,7 @@ function PanelPrediccionProyeccion() {
   const lstmEta = lstm.disponible ? lstm.minutos_a_precaucion : null;
   const etaColor = lstmEta !== null && lstmEta < 60 ? '#ef4444' : lstmEta !== null && lstmEta < 240 ? '#f59e0b' : '#3b82f6';
 
+  // Construir datos de la gráfica combinada
   const histPuntos = hist.map((m, i) => {
     const diffMin = Math.round((new Date(m.timestamp) - new Date(hist[hist.length - 1].timestamp)) / 60000);
     return { label: diffMin === 0 ? 'ahora' : diffMin + 'm', real: m.nivel_cm, proyeccion: null, lstmPunto: null };
@@ -236,6 +239,7 @@ function PanelPrediccionProyeccion() {
 
   const chartData = [...histPuntos, ...proyPuntos];
 
+  // Interpretación combinada
   let interp = '';
   const prec = proy.cruces_umbrales?.precaucion;
   if (lstmEta !== null && prec) {
@@ -249,6 +253,7 @@ function PanelPrediccionProyeccion() {
 
   return (
     <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 10, padding: 16 }}>
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.07em' }}>
           Predicción LSTM + Proyección futura
@@ -259,6 +264,7 @@ function PanelPrediccionProyeccion() {
         </div>
       </div>
 
+      {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
         <div style={{ background: '#0f172a', borderRadius: 8, padding: 12, textAlign: 'center' }}>
           <div style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', marginBottom: 6 }}>LSTM — tiempo a precaución</div>
@@ -279,6 +285,7 @@ function PanelPrediccionProyeccion() {
         </div>
       </div>
 
+      {/* Leyenda */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 10, flexWrap: 'wrap' }}>
         {[
           { color: '#60a5fa', dash: false, label: 'Historial real' },
@@ -297,6 +304,7 @@ function PanelPrediccionProyeccion() {
         ))}
       </div>
 
+      {/* Gráfica */}
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -312,10 +320,12 @@ function PanelPrediccionProyeccion() {
         </LineChart>
       </ResponsiveContainer>
 
+      {/* Interpretación */}
       <div style={{ background: '#0f172a', borderLeft: '3px solid #3b82f6', borderRadius: '0 8px 8px 0', padding: '12px 14px', fontSize: 12, color: '#94a3b8', lineHeight: 1.6, marginTop: 12, marginBottom: 14 }}>
         {interp}
       </div>
 
+      {/* Explicación diferencia */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <div style={{ background: '#0f172a', borderRadius: 8, padding: 12, borderLeft: '3px solid #3b82f6' }}>
           <div style={{ fontSize: 10, fontWeight: 600, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Proyección (línea punteada)</div>
@@ -330,6 +340,7 @@ function PanelPrediccionProyeccion() {
   );
 }
 
+// ── Panel Comparación Histórica ───────────────────────────────
 function PanelHistorico() {
   const [datos, setDatos] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -356,6 +367,9 @@ function PanelHistorico() {
   );
   if (!datos) return null;
 
+  const pct_peor   = Math.min(100, (datos.peor_caso_min / datos.mejor_caso_min) * 100);
+  const pct_prom   = Math.min(100, (datos.min_promedio / datos.mejor_caso_min) * 100);
+
   return (
     <div style={{ background: '#1e293b', border: '1px solid #334155', borderTop: '3px solid #8b5cf6', borderRadius: 10, padding: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -372,6 +386,7 @@ function PanelHistorico() {
         </div>
       </div>
 
+      {/* Métricas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
         {[
           { label: 'Promedio histórico', val: datos.min_promedio, sub: 'minutos', color: '#8b5cf6' },
@@ -387,6 +402,35 @@ function PanelHistorico() {
         ))}
       </div>
 
+      {/* Barra visual de rango */}
+      <div style={{ background: '#0f172a', borderRadius: 8, padding: 14, marginBottom: 14 }}>
+        <div style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 10 }}>
+          Rango histórico de tiempo a precaución
+        </div>
+        <div style={{ position: 'relative', height: 8, background: '#1e293b', borderRadius: 4, marginBottom: 8 }}>
+          {/* Rango completo */}
+          <div style={{ position: 'absolute', left: '0%', width: '100%', height: '100%', background: 'rgba(139,92,246,0.2)', borderRadius: 4 }} />
+          {/* Promedio */}
+          <div style={{
+            position: 'absolute',
+            left: `${Math.min(95, (datos.min_promedio / datos.mejor_caso_min) * 100)}%`,
+            top: -4, width: 2, height: 16, background: '#8b5cf6', borderRadius: 1
+          }} />
+          {/* Peor caso */}
+          <div style={{
+            position: 'absolute',
+            left: `${Math.min(95, (datos.peor_caso_min / datos.mejor_caso_min) * 100)}%`,
+            top: -4, width: 2, height: 16, background: '#ef4444', borderRadius: 1
+          }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#475569' }}>
+          <span style={{ color: '#ef4444' }}>Mín: {datos.mejor_caso_min} min</span>
+          <span style={{ color: '#8b5cf6' }}>Promedio: {datos.min_promedio} min</span>
+          <span style={{ color: '#22c55e' }}>Máx: {datos.peor_caso_min} min</span>
+        </div>
+      </div>
+
+      {/* Interpretación */}
       <div style={{ background: '#0f172a', borderLeft: '3px solid #8b5cf6', borderRadius: '0 8px 8px 0', padding: '12px 14px', fontSize: 12, color: '#94a3b8', lineHeight: 1.6, marginBottom: 10 }}>
         {datos.interpretacion}
       </div>
@@ -398,6 +442,7 @@ function PanelHistorico() {
   );
 }
 
+// ── Simulador ─────────────────────────────────────────────────
 function Simulador({ onEnvio }) {
   const [dist, setDist] = useState(250);
   const [voltaje, setVoltaje] = useState(12.65);
@@ -494,8 +539,108 @@ function Simulador({ onEnvio }) {
   );
 }
 
+// ── Login ──────────────────────────────────────────────────────
+function Login({ onLogin }) {
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const form = new URLSearchParams();
+      form.append('username', email);
+      form.append('password', password);
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form
+      });
+      if (res.ok) {
+        const data = await res.json();
+        onLogin(data.access_token);
+      } else {
+        setError('Credenciales incorrectas. Verifica tu email y contraseña.');
+      }
+    } catch {
+      setError('Error conectando con el servidor.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Segoe UI', sans-serif" }}>
+      <div style={{ width: '100%', maxWidth: 400, padding: 24 }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ width: 56, height: 56, background: '#1d4ed8', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>SAT Mopán</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Sistema de Alerta Temprana · Río Mopán</div>
+          <div style={{ fontSize: 11, color: '#475569', marginTop: 2 }}>Universidad Mariano Gálvez</div>
+        </div>
+
+        {/* Card */}
+        <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 12, padding: 24 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#f1f5f9', marginBottom: 20 }}>Iniciar sesión</div>
+
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.07em', display: 'block', marginBottom: 6 }}>Correo electrónico</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="hperezs@miumg.edu.gt"
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+              style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', borderRadius: 8, padding: '10px 12px', color: '#f1f5f9', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.07em', display: 'block', marginBottom: 6 }}>Contraseña</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              onKeyDown={e => e.key === 'Enter' && handleLogin()}
+              style={{ width: '100%', background: '#0f172a', border: '1px solid #334155', borderRadius: 8, padding: '10px 12px', color: '#f1f5f9', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          {error && (
+            <div style={{ background: '#2d0a0a', border: '1px solid #7f1d1d', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: '#ef4444', marginBottom: 16 }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={handleLogin}
+            disabled={loading || !email || !password}
+            style={{ width: '100%', background: loading || !email || !password ? '#374151' : '#1d4ed8', border: 'none', color: loading || !email || !password ? '#6b7280' : '#fff', borderRadius: 8, padding: '11px 0', fontSize: 14, fontWeight: 600, cursor: loading || !email || !password ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
+          >
+            {loading ? 'Verificando...' : 'Ingresar al sistema'}
+          </button>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 16, fontSize: 11, color: '#334155' }}>
+          Héctor Daniel Pérez · 5190-15-3835 · Proyecto de Graduación 2026
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── App principal ─────────────────────────────────────────────
 export default function App() {
+  const [token, setToken]   = useState(null);
   const [actual, setActual] = useState(null);
+
+  // Mostrar login si no hay token
+  if (!token) return <Login onLogin={setToken} />;
   const [historial, setHistorial] = useState([]);
   const [loading, setLoading] = useState(true);
   const [liveStatus, setLiveStatus] = useState('EN VIVO');
@@ -539,6 +684,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#111827', color: '#f1f5f9', fontFamily: "'Segoe UI', sans-serif" }}>
+      {/* Header */}
       <div style={{ background: '#0f172a', borderBottom: '1px solid #1e293b', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 32, height: 32, background: '#1d4ed8', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -557,6 +703,9 @@ export default function App() {
           <div style={{ fontSize: 11, color: '#475569', textAlign: 'right' }}>
             <div>{hora}</div><div style={{ marginTop: 1 }}>SAT-MOPAN-01</div>
           </div>
+          <button onClick={() => setToken(null)} style={{ background: '#1e293b', border: '1px solid #334155', color: '#64748b', borderRadius: 6, padding: '5px 12px', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>
+            Cerrar sesión
+          </button>
         </div>
       </div>
 
@@ -565,6 +714,7 @@ export default function App() {
           <div style={{ textAlign: 'center', color: '#64748b', padding: '4rem', fontFamily: 'monospace', fontSize: 13 }}>Conectando con el servidor...</div>
         ) : (
           <>
+            {/* Banner */}
             <div style={{ background: est.bg, border: `1px solid ${est.bc}`, borderRadius: 10, padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: est.c }}>Estado del río: {est.l}</span>
               <span style={{ fontSize: 20, fontWeight: 700, color: est.c, fontFamily: 'monospace' }}>
@@ -572,6 +722,7 @@ export default function App() {
               </span>
             </div>
 
+            {/* KPIs */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10 }}>
               <KpiCard accent="#3b82f6" label="Distancia al agua" value={distCm < 900 ? distCm.toFixed(1) + ' cm' : 'Error'} color={est.c} sub="menor distancia = mayor riesgo" />
               <KpiCard accent="#f59e0b" label="Batería" value={voltaje.toFixed(2)} color="#f59e0b" sub={voltaje >= 12 ? 'carga óptima' : 'carga baja'} />
@@ -579,6 +730,7 @@ export default function App() {
               <KpiCard accent="#22c55e" label="Mediciones" value={historial.length} color="#22c55e" sub="en este historial" />
             </div>
 
+            {/* Gráfica + Gauge */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
               <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 10, padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -642,11 +794,19 @@ export default function App() {
               </div>
             </div>
 
+            {/* Panel ML Random Forest */}
             <PanelML />
+
+            {/* Panel Predicción + Proyección LSTM */}
             <PanelPrediccionProyeccion />
+
+            {/* Panel Comparación Histórica */}
             <PanelHistorico />
+
+            {/* Simulador */}
             <Simulador onEnvio={fetchData} />
 
+            {/* Tabla */}
             <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 10, padding: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.07em' }}>Últimas mediciones registradas</span>
@@ -680,6 +840,7 @@ export default function App() {
               </table>
             </div>
 
+            {/* Footer */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid #1e293b' }}>
               <span style={{ fontSize: 10, color: '#475569' }}>Universidad Mariano Gálvez · Héctor Daniel Pérez 5190-15-3835 · SAT Río Mopán</span>
               <button onClick={fetchData} style={{ background: '#1d4ed8', border: 'none', color: '#fff', borderRadius: 6, padding: '6px 14px', fontSize: 11, cursor: 'pointer', fontWeight: 500, fontFamily: 'inherit' }}>Actualizar ↻</button>

@@ -691,7 +691,10 @@ export default function App() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>SAT Mopán — Panel de Monitoreo</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>SAT Mopán — Panel de Monitoreo</span>
+              <span style={{ fontSize: 12, color: '#475569', fontFamily: 'monospace' }}>{hora}</span>
+            </div>
             <div style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>Río Mopán · Puente El Camalote · Melchor de Mencos, Petén</div>
           </div>
         </div>
@@ -699,9 +702,6 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0f2d1a', border: '1px solid #166534', borderRadius: 20, padding: '4px 10px' }}>
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: liveStatus === 'SIN CONEXIÓN' ? '#ef4444' : '#22c55e' }} />
             <span style={{ fontSize: 11, color: liveStatus === 'SIN CONEXIÓN' ? '#ef4444' : '#22c55e', fontWeight: 500 }}>{liveStatus}</span>
-          </div>
-          <div style={{ fontSize: 11, color: '#475569', textAlign: 'right' }}>
-            <div>{hora}</div><div style={{ marginTop: 1 }}>SAT-MOPAN-01</div>
           </div>
           <button onClick={() => setToken(null)} style={{ background: '#1e293b', border: '1px solid #334155', color: '#64748b', borderRadius: 6, padding: '5px 12px', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>
             Cerrar sesión
